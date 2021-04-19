@@ -1,0 +1,9 @@
+[package]
+authors = ["Stephan Dilly <dilly.stephan@gmail.com>"]
+edition = "2018"
+name = "cargo-modify"
+version = "0.1.0"
+resolver = "2"
+
+[dependencies]
+toml = "0.5"
