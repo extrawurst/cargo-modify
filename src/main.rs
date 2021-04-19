@@ -16,15 +16,18 @@ const HELP: &str = "\
 cargo-modify
 
 USAGE:
-  cargo modify [OPTIONS]
+  cargo modify <MODE> [OPTIONS]
 FLAGS:
   -h, --help            Prints help information
 OPTIONS:
-  --new-resolver        Sets package.resolver=\"2\" (default)
+  --v2=true             If not `true` removes new resolver entry (default: true)
+MODE:
+  new-resolver          Sets package.resolver=\"2\"
 ";
 
 struct Args {
     new_resolver: bool,
+    mode: String,
 }
 
 fn main() {
@@ -41,18 +44,24 @@ fn main() {
     let original_toml: toml::Value = toml::from_slice(file.as_bytes()).unwrap();
     let mut new_toml = original_toml.clone();
 
-    if args.new_resolver {
-        new_toml
-            .as_table_mut()
-            .and_then(|t| t.get_mut("package"))
-            .and_then(|package| package.as_table_mut())
-            .map(|package| package.entry("resolver").or_insert("2".into()));
+    if &args.mode == "new-resolver" {
+        println!("mode: new-resolver (arg: {})", args.new_resolver);
+        if args.new_resolver {
+            new_toml
+                .as_table_mut()
+                .and_then(|t| t.get_mut("package"))
+                .and_then(|package| package.as_table_mut())
+                .map(|package| package.entry("resolver").or_insert("2".into()));
+        } else {
+            new_toml
+                .as_table_mut()
+                .and_then(|t| t.get_mut("package"))
+                .and_then(|package| package.as_table_mut())
+                .map(|package| package.remove("resolver"));
+        }
     } else {
-        new_toml
-            .as_table_mut()
-            .and_then(|t| t.get_mut("package"))
-            .and_then(|package| package.as_table_mut())
-            .map(|package| package.remove("resolver"));
+        eprintln!("unknown mode: '{}'", args.mode);
+        std::process::exit(1);
     }
 
     if new_toml != original_toml {
@@ -73,7 +82,8 @@ fn parse_args() -> Result<Args, pico_args::Error> {
     }
 
     let args = Args {
-        new_resolver: pargs.opt_value_from_str("--new-resolver")?.unwrap_or(true),
+        new_resolver: pargs.opt_value_from_str("--v2")?.unwrap_or(true),
+        mode: pargs.free_from_str().unwrap_or_default(),
     };
 
     Ok(args)

@@ -7,12 +7,12 @@ Currently a proof of concept for being able to switch the new resolver on/off vi
 run `cargo modify` in a folder that contains a `Cargo.toml`:
 
 ```sh
-# remove 'resolver' from Cargo.toml
-cargo modify --new-resolver=false
 # set new resolver
-cargo modify --new-resolver=true
-# as above, this is the default
-cargo modify
+cargo modify new-resolver
+# same as above
+cargo modify new-resolver --v2=true
+# remove 'resolver' from Cargo.toml
+cargo modify new-resolver --v2=false
 ```
 
 **Caution** this will reorder your `Cargo.toml` arbitrarily. Primary use-case is to do on-the-fly changes on a CI
