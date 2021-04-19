@@ -81,6 +81,8 @@ fn parse_args() -> Result<Args, pico_args::Error> {
         std::process::exit(0);
     }
 
+    let _modify: String = pargs.free_from_str().unwrap_or_default();
+
     let args = Args {
         new_resolver: pargs.opt_value_from_str("--v2")?.unwrap_or(true),
         mode: pargs.free_from_str().unwrap_or_default(),
