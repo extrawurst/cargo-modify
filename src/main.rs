@@ -12,16 +12,48 @@
 #![deny(clippy::match_like_matches_macro)]
 #![deny(clippy::needless_update)]
 
+const HELP: &str = "\
+cargo-modify
+
+USAGE:
+  cargo modify [OPTIONS]
+FLAGS:
+  -h, --help            Prints help information
+OPTIONS:
+  --new-resolver        Sets package.resolver=\"2\" (default)
+";
+
+struct Args {
+    new_resolver: bool,
+}
+
 fn main() {
+    let args = match parse_args() {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("Error: {}.", e);
+            std::process::exit(1);
+        }
+    };
+
     let p = "Cargo.toml";
     let file = std::fs::read_to_string(p).unwrap();
     let original_toml: toml::Value = toml::from_slice(file.as_bytes()).unwrap();
     let mut new_toml = original_toml.clone();
-    new_toml
-        .as_table_mut()
-        .and_then(|t| t.get_mut("package"))
-        .and_then(|package| package.as_table_mut())
-        .map(|package| package.entry("resolver").or_insert("2".into()));
+
+    if args.new_resolver {
+        new_toml
+            .as_table_mut()
+            .and_then(|t| t.get_mut("package"))
+            .and_then(|package| package.as_table_mut())
+            .map(|package| package.entry("resolver").or_insert("2".into()));
+    } else {
+        new_toml
+            .as_table_mut()
+            .and_then(|t| t.get_mut("package"))
+            .and_then(|package| package.as_table_mut())
+            .map(|package| package.remove("resolver"));
+    }
 
     if new_toml != original_toml {
         let s = toml::to_string(&new_toml).unwrap();
@@ -30,4 +62,19 @@ fn main() {
     } else {
         println!("nothing changed");
     }
+}
+
+fn parse_args() -> Result<Args, pico_args::Error> {
+    let mut pargs = pico_args::Arguments::from_env();
+
+    if pargs.contains(["-h", "--help"]) {
+        print!("{}", HELP);
+        std::process::exit(0);
+    }
+
+    let args = Args {
+        new_resolver: pargs.opt_value_from_str("--new-resolver")?.unwrap_or(true),
+    };
+
+    Ok(args)
 }
