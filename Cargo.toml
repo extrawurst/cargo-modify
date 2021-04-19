@@ -4,6 +4,10 @@ edition = "2018"
 name = "cargo-modify"
 version = "0.1.0"
 resolver = "2"
+description = "allows changes to the cargo toml via cmd line"
+license-file = "LICENSE" 
+homepage = "https://github.com/extrawurst/cargo-modify"
+repository = "https://github.com/extrawurst/cargo-modify"
 
 [dependencies]
 toml = "0.5"
