@@ -2,7 +2,7 @@
 authors = ["Stephan Dilly <dilly.stephan@gmail.com>"]
 edition = "2018"
 name = "cargo-modify"
-version = "0.2.0"
+version = "0.3.0"
 resolver = "2"
 description = "allows changes to the cargo toml via cmd line"
 license-file = "LICENSE" 
